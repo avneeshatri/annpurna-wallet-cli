@@ -1,0 +1,31 @@
+---
+name: annpurna-network-fci
+version: 1.0.0
+client:
+  organization: Fci
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+organizations:
+  Fci:
+    mspid: FciMSP
+    peers:
+    - peer0.fci.saraswati.gov
+    certificateAuthorities:
+    - ca.fci.saraswati.gov
+peers:
+  peer0.fci.saraswati.gov:
+    url: grpcs://localhost:7151
+    tlsCACerts:
+      path: /home/atri/workspace_hlf/annpurna/organizations/fci/organization/peerOrganizations/fci.saraswati.gov/tlsca/tlsca.fci.saraswati.gov-cert.pem
+    grpcOptions:
+      ssl-target-name-override: peer0.fci.saraswati.gov
+certificateAuthorities:
+  ca.fci.saraswati.gov:
+    url: https://localhost:7154
+    caName: ca-fci
+    tlsCACerts:
+      path: /home/atri/workspace_hlf/annpurna/organizations/fci/fabric-ca/tls-cert.pem
+    httpOptions:
+      verify: false
