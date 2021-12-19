@@ -22,10 +22,13 @@ import com.annpurna.cli.common.model.AnnpurnaWallet;
 import com.annpurna.cli.common.util.JsonParser;
 import com.annpurna.wallet.crypto.CryptoUtil;
 
-public class WalletContractService {
+public class ZudexoWalletContractService {
 
 	private static ResourceAdapter props = ResourceAdapter.getInstance("annpurna-net.properties");
-
+	private static final String ZudexoMSP = "ZudexoMSP";
+	private static final String ZiggyMSP = "ZiggyMSP" ;
+	
+	
 	public static void main(String[] args) {
 		
 
@@ -36,6 +39,7 @@ public class WalletContractService {
 			// Connect to gateway using application specified parameters
 			try(Gateway gateway = createGatewayBuilder().connect()) {
 
+				
 				// Access PaperNet network
 				System.out.println("Use network channel: "+channelName);
 				Network network = gateway.getNetwork(channelName);
@@ -43,8 +47,13 @@ public class WalletContractService {
 				// Get addressability to commercial paper contract
 				System.out.println("chain code:"+chaincodeId+", smart contract"+contractName);
 				Contract contract = network.getContract(chaincodeId, contractName);
-
-				;
+				
+				contract.addContractListener(new AnnpurnaWalletEventListner());
+				
+				setUpZudexo(contract,100000000000000L);
+				System.out.println(getBalance(contract, ZudexoMSP, ""));
+				setUpZiggy(contract, 10000L);
+				System.out.println(getBalance(contract, ZudexoMSP, ""));
 				// Create wallet
 				AnnpurnaWallet wallet = createWallet(contract);
 				System.out.println("wallet :"+wallet);
@@ -53,6 +62,17 @@ public class WalletContractService {
 				System.out.println(readWallet(contract, wallet.getId(), wallet.getSecret()));
 			
 				System.out.println(getBalance(contract, wallet.getId(), wallet.getSecret()));
+				
+				/*
+				
+				System.out.println(getBalance(contract, ZudexoMSP, ""));
+				
+				transaction(contract, 100L);
+				
+				System.out.println(getBalance(contract, "ZudexoMSP", ""));
+				
+				*/
+				
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
@@ -75,7 +95,8 @@ public class WalletContractService {
 		Path connectionProfile = Paths.get(props.getProperty("connection.profile.path"));
 
 		// Set connection options on the gateway builder
-		builder.identity(wallet, userName).networkConfig(connectionProfile).discovery(true);
+		builder.identity(wallet, userName).networkConfig(connectionProfile)
+		.discovery(true);
 		
 		return builder;
 	}
@@ -93,7 +114,6 @@ public class WalletContractService {
 		
 		AnnpurnaWallet wallet = new AnnpurnaWallet();
 		wallet.setId(CryptoUtil.generateSHA3Hash(base64EncodedPrivKey));
-		wallet.setValue(100L);
 		wallet.setOwner(base64EncodedPubKey);
 		wallet.setSecret(base64EncodedPrivKey);
 		
@@ -108,6 +128,32 @@ public class WalletContractService {
 		return JsonParser.deserialize(CommonUtils.deserialize(response),AnnpurnaWallet.class);
 	}
 	
+	private static AnnpurnaWallet createPartnerWallet(Contract contract , String orgMspId) throws Exception {
+		System.out.println("Submit create partner wallet transaction.");
+		
+		byte[] response = contract.submitTransaction("CreatePartnerWallet", orgMspId);
+		return JsonParser.deserialize(CommonUtils.deserialize(response),AnnpurnaWallet.class);
+	}
+	
+	private static AnnpurnaWallet addFunds(Contract contract , long value) throws Exception {
+		System.out.println("Submit create partner wallet transaction.");
+		
+		byte[] response = contract.submitTransaction("addFunds", String.valueOf(value));
+		return JsonParser.deserialize(CommonUtils.deserialize(response),AnnpurnaWallet.class);
+	}
+	
+	private static void setUpZudexo(Contract contract,long value) throws Exception {
+		
+		System.out.println(createPartnerWallet(contract,ZudexoMSP));
+		System.out.println(addFunds(contract,value));
+	}
+	
+	private static void setUpZiggy(Contract contract,long value) throws Exception {
+		
+		System.out.println(createPartnerWallet(contract,ZiggyMSP));
+		System.out.println(transferTo(contract,ZiggyMSP,value));
+	}
+	
 	private static AnnpurnaWallet readWallet(Contract contract ,String walletId , String secret) throws Exception{
 		System.out.println("Submit read wallet transaction.");
 		byte[] signature = CryptoUtil.signWithPrivatekey(walletId.getBytes(),
@@ -120,9 +166,14 @@ public class WalletContractService {
 	
 	private static String getBalance(Contract contract ,String walletId, String secret) throws Exception{
 		System.out.println("Submit balanceOf wallet transaction.");
-		byte[] signature = CryptoUtil.signWithPrivatekey(walletId.getBytes(), 
-				CryptoUtil.generatePKCS8EncodedPrivateKey(CryptoUtil.base64Decoded(secret)));
-		byte[] response = contract.submitTransaction("balanceOf", walletId ,  CryptoUtil.base64EndoedString(signature));
+		String userSign =  "" ;
+				
+		if(secret != null && !secret.isBlank()) {
+			byte[] signature = CryptoUtil.signWithPrivatekey(walletId.getBytes(), 
+					CryptoUtil.generatePKCS8EncodedPrivateKey(CryptoUtil.base64Decoded(secret)));
+			userSign = CryptoUtil.base64EndoedString(signature) ;
+		}
+		byte[] response = contract.submitTransaction("balanceOf", walletId , userSign );
 		String responseStr = CommonUtils.deserialize(response);
 		System.out.println("Balance:"+responseStr);
 		return responseStr ;
@@ -142,5 +193,18 @@ public class WalletContractService {
 		byte[] response = contract.submitTransaction("allowance", CryptoUtil.base64EndoedString(signature),ownerWalletId,spenderWallet);
 		String responseStr = CommonUtils.deserialize(response);
 		System.out.println("Approved ammount:"+responseStr);
+	}
+	
+	public static String transferTo(Contract contract , String recipeient , Long ammount) throws Exception  {
+		System.out.println("Transfer to "+recipeient+" partner wallet transaction.");
+		byte[] response = contract.submitTransaction("transferTo", recipeient, String.valueOf(ammount));
+		return JsonParser.deserialize(CommonUtils.deserialize(response),String.class);
+	}
+	
+	private static void transaction(Contract contract,long ammount) throws Exception {
+		AnnpurnaWallet wallet =createWallet(contract) ;
+		System.out.println(readWallet(contract, wallet.getId(), wallet.getSecret()));
+		transferTo(contract,wallet.getId(),ammount);
+		System.out.println(getBalance(contract, wallet.getId(), wallet.getSecret()) );
 	}
 }

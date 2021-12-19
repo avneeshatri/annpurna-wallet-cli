@@ -8,5 +8,8 @@
   	<module>annpurna-fci-cli</module>
   	<module>annpurna-zudexo-cli</module>
   	<module>annpurna-cli-common</module>
+  	<module>annpurna-ziggy-cli</module>
+  	<module>annpurna-rest</module>
+  	<module>annpurna-ui</module>
   </modules>
 </project>

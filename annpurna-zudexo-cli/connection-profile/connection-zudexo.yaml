@@ -1,0 +1,31 @@
+---
+name: annpurna-network-zudexo
+version: 1.0.0
+client:
+  organization: Zudexo
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+organizations:
+  Zudexo:
+    mspid: ZudexoMSP
+    peers:
+    - peer0.zudexo.yamuna.com
+    certificateAuthorities:
+    - ca.zudexo.yamuna.com
+peers:
+  peer0.zudexo.yamuna.com:
+    url: grpcs://localhost:7051
+    tlsCACerts:
+      path: /home/atri/workspace_hlf/annpurna/organizations/zudexo/organization/peerOrganizations/zudexo.yamuna.com/tlsca/tlsca.zudexo.yamuna.com-cert.pem
+    grpcOptions:
+      ssl-target-name-override: peer0.zudexo.yamuna.com
+certificateAuthorities:
+  ca.zudexo.yamuna.com:
+    url: https://localhost:7054
+    caName: ca-zudexo
+    tlsCACerts:
+      path: /home/atri/workspace_hlf/annpurna/organizations/zudexo/fabric-ca/tls-cert.pem
+    httpOptions:
+      verify: false

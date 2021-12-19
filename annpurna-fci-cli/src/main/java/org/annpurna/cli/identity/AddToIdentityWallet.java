@@ -15,6 +15,7 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import org.annpurna.cli.common.utils.CommonUtils;
 import org.annpurna.cli.common.utils.ResourceAdapter;
 import org.hyperledger.fabric.gateway.Identities;
 import org.hyperledger.fabric.gateway.Identity;
@@ -50,7 +51,10 @@ public class AddToIdentityWallet {
       System.out.println("credentialPath: " + credentialPath.toString());
       Path certificatePath = credentialPath.resolve(Paths.get(props.getProperty("org.user.cert.path")));
       System.out.println("certificatePem: " + certificatePath.toString());
-      Path privateKeyPath = credentialPath.resolve(Paths.get(props.getProperty("org.user.private.key.path")));
+      
+      String privateKeyFileName = CommonUtils.resolvePrivateKeyPath(props.getProperty("org.user.private.key.path"));
+      System.out.println("Private Key File :"+privateKeyFileName);
+      Path privateKeyPath = credentialPath.resolve(Paths.get(privateKeyFileName));
 
       X509Certificate certificate = readX509Certificate(certificatePath);
       PrivateKey privateKey = getPrivateKey(privateKeyPath);

@@ -20,6 +20,8 @@ public class AnnpurnaWallet {
 	private Object properties ;
 	@Property()
 	private Long value;
+	@Property
+	private String secret ;
 
 	public String getId() {
 		return id;
@@ -77,6 +79,15 @@ public class AnnpurnaWallet {
 		this.value = value;
 	}
 	
+	
+	public String getSecret() {
+		return secret;
+	}
+
+	public void setSecret(String secret) {
+		this.secret = secret;
+	}
+
 	@Override
 	public String toString() {
 		return "Wallet [id=" + id + ", createdOn=" + createdOn + ", createdBy=" + createdBy + ","
