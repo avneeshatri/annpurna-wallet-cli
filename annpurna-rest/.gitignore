@@ -1,5 +1,5 @@
-swagger-codegen
 target
+src/main/java-gen
 .classpath
 .swagger-codegen
 .swagger-codegen-ignore
