@@ -1,0 +1,31 @@
+---
+name: annpurna-network-ziggy
+version: 1.0.0
+client:
+  organization: Ziggy
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+organizations:
+  Ziggy:
+    mspid: ZiggyMSP
+    peers:
+    - peer0.ziggy.bhagirathi.com
+    certificateAuthorities:
+    - ca.ziggy.bhagirathi.com
+peers:
+  peer0.ziggy.bhagirathi.com:
+    url: grpcs://localhost:7251
+    tlsCACerts:
+      path: /home/atri/workspace_hlf/annpurna/organizations/ziggy/organization/peerOrganizations/ziggy.bhagirathi.com/tlsca/tlsca.ziggy.bhagirathi.com-cert.pem
+    grpcOptions:
+      ssl-target-name-override: peer0.ziggy.bhagirathi.com
+certificateAuthorities:
+  ca.ziggy.bhagirathi.com:
+    url: https://localhost:7254
+    caName: ca-ziggy
+    tlsCACerts:
+      path: /home/atri/workspace_hlf/annpurna/organizations/ziggy/fabric-ca/tls-cert.pem
+    httpOptions:
+      verify: false

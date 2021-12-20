@@ -1,0 +1,338 @@
+swagger: '2.0'
+info:
+   description: Annpurna - Cli Web Services.
+   version: 1.0.0
+   title: Annpurna API
+   termsOfService: https://www.annpurna.org/terms.html
+   contact:
+      email: atri.avneesh@gmail.com
+   license:
+      name: Proprietary License
+      url: https://www.annpurna.org
+basePath: /annpurna-web/api
+tags:
+-  name: Health
+   description: Apis to check health.
+   externalDocs:
+      description: Find out more
+      url: https://www.annpurna.org/admin/docs/wiki.html
+
+                  
+schemes:
+- http
+- https
+
+paths:
+   /health:
+      get:
+         tags:
+         - Health
+         summary: Health Check Api.
+         description: Health check api.
+         operationId: health
+         produces:
+         - application/json
+        
+         responses:
+            '200':
+               description: Successful Operation.
+               schema:
+                  type: string
+            '401':
+               description: Unauthorized.
+            '404':
+               description: Resource Unavailable.
+            '500':
+               description: Internal Error.
+         security:
+         -  resource:
+            - HEALTH
+         -  action:
+            - READ    
+
+   /wallet:
+      post:
+         tags:
+         - Wallet
+         summary: Wallet Api.
+         description: Create wallet api.
+         operationId: createWallet
+         produces:
+         - application/json
+      
+         responses:
+            '200':
+               description: Successful Operation.
+               schema:
+                  $ref: '#/definitions/Wallet'
+            '401':
+               description: Unauthorized.
+            '404':
+               description: Resource Unavailable.
+            '500':
+               description: Internal Error.
+         security:
+         -  resource:
+            - WALLET
+         -  action:
+            - CREATE  
+
+      get:
+         tags:
+         - Wallet
+         summary: Read wallet Api.
+         description: Read wallet api.
+         operationId: readWallet
+         produces:
+         - application/json
+         parameters:
+         -  in: header
+            name: x-user-secret
+            description: User secret.
+            required: true
+            type: string
+            format: utf-8     
+         responses:
+            '200':
+               description: Successful Operation.
+               schema:
+                  $ref: '#/definitions/Wallet'
+            '401':
+               description: Unauthorized.
+            '404':
+               description: Resource Unavailable.
+            '500':
+               description: Internal Error.
+         security:
+         -  resource:
+            - WALLET
+         -  action:
+            - READ
+
+   /wallet/createPartner/{mspId}:
+      post:
+         tags:
+         - Wallet
+         summary: Create partner wallet Api.
+         description: Create partner wallet api.
+         operationId: createPartnerWallet
+         produces:
+         - application/json
+         parameters:
+             - in: path
+               name: mspId
+               description: member mspId.
+               required: true
+               type: string
+               format: utf-8        
+         responses:
+            '200':
+               description: Successful Operation.
+               schema:
+                  $ref: '#/definitions/Wallet'
+            '401':
+               description: Unauthorized.
+            '404':
+               description: Resource Unavailable.
+            '500':
+               description: Internal Error.
+         security:
+         -  resource:
+            - WALLET
+         -  action:
+            - CREATE 
+
+   /wallet/funds:
+      put:
+         tags:
+         - Wallet
+         summary: Add funds Api.
+         description: Api to add funds to wallet.
+         operationId: addFunds
+         produces:
+         - application/json
+         parameters:
+         -  in: query
+            name: fund
+            description: Ammount to be added in funds.
+            required: false
+            type: number
+            format: utf-8
+         responses:
+            '200':
+               description: Successful Operation.
+               schema:
+                  $ref: '#/definitions/Wallet'
+            '401':
+               description: Unauthorized.
+            '404':
+               description: Resource Unavailable.
+            '500':
+               description: Internal Error.
+         security:
+         -  resource:
+            - WALLET
+         -  action:
+            - UPDATE  
+
+   /wallet/transfer:
+      put:
+         tags:
+         - Wallet
+         summary: Transfer funds Api.
+         description: Api to transfer funds to wallet.
+         operationId: transfer
+         produces:
+         - application/json
+         parameters:
+         -  in: body
+            name: tx
+            description: Transaction details.
+            required: true
+            schema:
+               $ref: '#/definitions/Tx'
+         responses:
+            '200':
+               description: Successful Operation.
+               schema:
+                  $ref: '#/definitions/Wallet'
+            '401':
+               description: Unauthorized.
+            '404':
+               description: Resource Unavailable.
+            '500':
+               description: Internal Error.
+         security:
+         -  resource:
+            - WALLET
+         -  action:
+            - UPDATE  
+                                     
+   /wallet/transferTo:
+      put:
+         tags:
+         - Wallet
+         summary: Transfer funds Api.
+         description: Api to transfer funds to user wallet.
+         operationId: transferTo
+         produces:
+         - application/json
+         parameters:
+         -  in: body
+            name: tx
+            description: Transaction details.
+            required: true
+            schema:
+               $ref: '#/definitions/Tx'
+         responses:
+            '200':
+               description: Successful Operation.
+               schema:
+                  $ref: '#/definitions/Wallet'
+            '401':
+               description: Unauthorized.
+            '404':
+               description: Resource Unavailable.
+            '500':
+               description: Internal Error.
+         security:
+         -  resource:
+            - WALLET
+         -  action:
+            - UPDATE
+
+   /wallet/balance:
+      get:
+         tags:
+         - Wallet
+         summary: Transfer funds Api.
+         description: Api to transfer funds to user wallet.
+         operationId: balance
+         produces:
+         - application/json
+         parameters:
+         -  in: header
+            name: x-user-secret
+            description: User secret.
+            required: true
+            type: string
+            format: utf-8 
+         responses:
+            '200':
+               description: Successful Operation.
+               schema:
+                  type: number
+            '401':
+               description: Unauthorized.
+            '404':
+               description: Resource Unavailable.
+            '500':
+               description: Internal Error.
+         security:
+         -  resource:
+            - WALLET
+         -  action:
+            - READ
+                                                                                                    
+securityDefinitions:
+   resource:
+      type: oauth2
+      authorizationUrl: http://www.annpurna.org
+      flow: implicit
+      scopes:
+         'HEALTH': Health check Opertion.
+         'WALLET': Wallet Operations.
+
+         
+   action:
+      type: oauth2
+      authorizationUrl: http://www.annpurna.org
+      flow: implicit
+      scopes:
+         'READ': Get Opertion.
+         'UPDATE': Update Meta Operation.
+         'DELETE': Delete Operation.
+         'CREATE': Update Meta Operation.
+         'SEARCH': Delete Operation.
+
+                           
+definitions:
+   Wallet:
+      type: object
+      properties:
+         id:
+            type: string
+         name:
+            type: string
+         status:
+            type: string
+         secret:
+            type: string
+         balance:
+            type: number
+         createdBy:
+            type: string
+         createdOn:
+            type: string
+            format: date-time
+         modifiedBy:
+            type: string
+         modifiedOn:
+            type: string
+            format: date-time
+                                                 
+   Tx:
+      type: object
+      properties:
+         senderWalletId:
+            type: string
+         senderSecret:
+            type: string
+         recipientWalletId:
+            type: string
+         amount:
+            type: number
+                                                               
+externalDocs:
+   description: Find out more about annpurna.
+   url: https://annpurna/aboutus.html

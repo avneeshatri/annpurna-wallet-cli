@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+  xmlns:j2ee="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee    http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+    <servlet>
+        <servlet-name>jersey</servlet-name>
+        <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+        <init-param>
+			<param-name>jersey.config.server.provider.packages</param-name>
+			<param-value>org.annpurna.wallet.cli.api.filter,org.annpurna.wallet.cli.api.handler</param-value>
+		</init-param>
+		<init-param>
+			<param-name>jersey.config.server.provider.classnames</param-name>
+			<param-value>org.glassfish.jersey.media.multipart.MultiPartFeature</param-value>
+		</init-param>
+        <init-param>
+			<param-name>jersey.config.server.provider.classnames</param-name>
+			<param-value>io.swagger.jaxrs.listing.SwaggerSerializers</param-value>
+		</init-param>
+	    <init-param>
+			<param-name>HealthApi.implementation</param-name>
+			<param-value>org.annpurna.wallet.cli.api.handler.impl.HealthApiServiceImplementation</param-value>
+		</init-param>
+	    <init-param>
+			<param-name>WalletApi.implementation</param-name>
+			<param-value>org.annpurna.wallet.cli.api.handler.impl.WalletApiServiceImplementation</param-value>
+		</init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+	<servlet-mapping>
+		<servlet-name>jersey</servlet-name>
+		<url-pattern>/api/*</url-pattern>
+	</servlet-mapping>
+	
+	<filter>
+		<filter-name>CorsFilter</filter-name>
+		<filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+		<init-param>
+			<param-name>cors.allowed.origins</param-name>
+			<param-value>*</param-value>
+		</init-param>
+		<init-param>
+			<param-name>cors.allowed.methods</param-name>
+			<param-value>GET,POST,HEAD,OPTIONS,PUT,DELETE</param-value>
+		</init-param>
+		<init-param>
+			<param-name>cors.allowed.headers</param-name>
+			<param-value>x-user-secret,Content-Type,X-Requested-With,accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers</param-value>
+		</init-param>
+		<init-param>
+			<param-name>cors.exposed.headers</param-name>
+			<param-value>Access-Control-Allow-Origin,Access-Control-Allow-Credentials</param-value>
+		</init-param>
+		<!--
+		<init-param>
+			<param-name>cors.support.credentials</param-name>
+			<param-value>true</param-value>
+		</init-param> -->
+		<init-param>
+			<param-name>cors.preflight.maxage</param-name>
+			<param-value>10</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>CorsFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<!--  Added to handle react js routing bug -->
+	<error-page>
+      <error-code>404</error-code>
+      <location>/index.html</location>
+    </error-page>
+</web-app>
