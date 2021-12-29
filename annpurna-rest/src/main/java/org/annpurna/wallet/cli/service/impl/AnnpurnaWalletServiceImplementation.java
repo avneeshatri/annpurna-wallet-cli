@@ -1,9 +1,12 @@
 package org.annpurna.wallet.cli.service.impl;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.annpurna.cli.common.contract.AnnpurnaWalletOperations;
+import org.annpurna.cli.common.utils.ResourceAdapter;
 import org.annpurna.wallet.cli.api.model.Wallet;
 import org.annpurna.wallet.cli.exception.AnnpurnaServiceException;
 import org.annpurna.wallet.cli.service.AnnpurnaWalletServiceIntf;
@@ -11,7 +14,7 @@ import org.annpurna.wallet.cli.service.AnnpurnaWalletServiceIntf;
 import com.annpurna.cli.common.model.AnnpurnaWallet;
 
 public class AnnpurnaWalletServiceImplementation implements AnnpurnaWalletServiceIntf {
-
+	
 	private AnnpurnaWalletOperations hlfWalletContractOps ;
 	
 	public AnnpurnaWalletServiceImplementation() {
@@ -98,5 +101,23 @@ public class AnnpurnaWalletServiceImplementation implements AnnpurnaWalletServic
 		w.setBalance(BigDecimal.valueOf(wallet.getValue()));
 		
 		return w;
+	}
+
+	private static List<Wallet> transformToWallet (List<AnnpurnaWallet> wallets) {
+		List<Wallet> wlist = new ArrayList<Wallet>();
+		for(AnnpurnaWallet wallet : wallets) {
+			wlist.add(transformToWallet(wallet));
+		}
+		
+		return wlist;
+	}
+
+	@Override
+	public List<Wallet> getWalletHistory(String secret) throws AnnpurnaServiceException {
+		try {
+			return transformToWallet(hlfWalletContractOps.getWalletHistory(secret));
+		} catch (Exception e) {
+			throw new AnnpurnaServiceException(e);
+		}
 	}
 }

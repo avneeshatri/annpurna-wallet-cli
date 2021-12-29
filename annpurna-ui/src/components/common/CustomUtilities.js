@@ -1,7 +1,7 @@
 import Alert from 'react-s-alert';
 
-//var baseUrl = "http://localhost:8080/annpurna-web/api" ;
-var baseUrl = "api"
+var baseUrl = "http://localhost:8080/annpurna-web/api" ;
+//var baseUrl = "api"
 var x_access_token_cookie = "x-access-token";
 var x_user_id_cookie = "x-user-id";
 
@@ -117,14 +117,14 @@ export function isAuthenticated(){
     return false ;
 }
 
-function hasCookie(cname){
-    if(getCookie(cname) == null){
+export function hasCookie(cname){
+    if(isUndefined(getCookie(cname))){
         return false ;
     }
     return true ;
 }
 
-function getCookie(cname) {
+export function getCookie(cname) {
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
     var ca = decodedCookie.split(';');
@@ -147,10 +147,18 @@ export function getURIParam(key){
     return params.get(key);
 }
 
-export function formatDate(dateStr){
-    if(!isUndefined(dateStr)){
-        dateStr = dateStr.replace("[UTC]", "");
-        const date = new Date(dateStr);
-        return date.getHours()+" hr "+date.getMinutes()+ " min, "+date.getDate()+" "+date.toLocaleString('default', { month: 'long' }) + " " +date.getFullYear();
+
+export function setCookie(name,value) {
+    var expires = "";
+    var days = 1
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
     }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+
+export function eraseCookie(name) {   
+    document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }

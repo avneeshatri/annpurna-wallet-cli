@@ -109,6 +109,39 @@ paths:
          -  action:
             - READ
 
+   /wallet/history:
+      get:
+         tags:
+         - Wallet
+         summary: Get wallet history Api.
+         description: Get wallet history.
+         operationId: walletHistory
+         produces:
+         - application/json
+         parameters:
+         -  in: header
+            name: x-user-secret
+            description: User secret.
+            required: true
+            type: string
+            format: utf-8     
+         responses:
+            '200':
+               description: Successful Operation.
+               schema:
+                  $ref: '#/definitions/Wallet'
+            '401':
+               description: Unauthorized.
+            '404':
+               description: Resource Unavailable.
+            '500':
+               description: Internal Error.
+         security:
+         -  resource:
+            - WALLET
+         -  action:
+            - READ
+
    /wallet/createPartner/{mspId}:
       post:
          tags:
@@ -129,7 +162,9 @@ paths:
             '200':
                description: Successful Operation.
                schema:
-                  $ref: '#/definitions/Wallet'
+                 type: array
+                 items:
+                   $ref: '#/definitions/Wallet'
             '401':
                description: Unauthorized.
             '404':
@@ -174,6 +209,39 @@ paths:
             - WALLET
          -  action:
             - UPDATE  
+
+   /wallet/purchase:
+      put:
+         tags:
+         - Wallet
+         summary: Transfer funds Api.
+         description: Api to transfer funds to network member wallet.
+         operationId: purchase
+         produces:
+         - application/json
+         parameters:
+         -  in: body
+            name: tx
+            description: Transaction details.
+            required: true
+            schema:
+               $ref: '#/definitions/Tx'
+         responses:
+            '200':
+               description: Successful Operation.
+               schema:
+                  $ref: '#/definitions/Wallet'
+            '401':
+               description: Unauthorized.
+            '404':
+               description: Resource Unavailable.
+            '500':
+               description: Internal Error.
+         security:
+         -  resource:
+            - WALLET
+         -  action:
+            - UPDATE 
 
    /wallet/transfer:
       put:

@@ -6,6 +6,8 @@ import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Arrays;
+import java.util.List;
 
 import org.annpurna.cli.common.utils.CommonUtils;
 import org.annpurna.cli.common.utils.ResourceAdapter;
@@ -165,5 +167,19 @@ public class AnnpurnaWalletOperations {
 			String userSign = CryptoUtil.base64EndoedString(signature) ;
 			byte[] response = getContract().submitTransaction("transfer", userSign, senderWalletId, recipentWalletId ,String.valueOf(amount));
 		}
+	}
+	
+	public List<AnnpurnaWallet> getWalletHistory(String secret) throws Exception {
+		System.out.println("Submit get wallet history transaction.");
+		String walletId = CryptoUtil.generateWalletId(secret) ;
+
+		byte[] signature = CryptoUtil.signWithPrivatekey(walletId.getBytes(), 
+				CryptoUtil.generatePKCS8EncodedPrivateKey(CryptoUtil.base64Decoded(secret)));
+		String userSign = CryptoUtil.base64EndoedString(signature) ;
+		
+		byte[] response = getContract().submitTransaction("GetWalletHistory", walletId, userSign);
+		String responseStr = CommonUtils.deserialize(response);
+		List<AnnpurnaWallet> list = Arrays.asList(JsonParser.deserialize(responseStr,AnnpurnaWallet[].class));
+        return list;
 	}
 }

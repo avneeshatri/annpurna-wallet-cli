@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
+import org.annpurna.cli.common.utils.ResourceAdapter;
 import org.annpurna.wallet.cli.api.handler.ApiResponseMessage;
 import org.annpurna.wallet.cli.api.handler.NotFoundException;
 import org.annpurna.wallet.cli.api.handler.WalletApiService;
@@ -17,7 +18,7 @@ import org.annpurna.wallet.cli.util.ResponseUtil;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaJerseyServerCodegen", date = "2021-12-06T20:05:59.369+05:30")
 public class WalletApiServiceImplementation extends WalletApiService {
-	
+	private static ResourceAdapter props = ResourceAdapter.getInstance("annpurna-net.properties");
 	private AnnpurnaWalletServiceImplementation walletServiceImpl ;
 	
 	public WalletApiServiceImplementation(){
@@ -59,4 +60,18 @@ public class WalletApiServiceImplementation extends WalletApiService {
     	walletServiceImpl.transferTo(tx.getRecipientWalletId(), tx.getAmount().longValue());
     	return ResponseUtil.getSuccessResponse("Transfer to successfull", null);
     }
+
+	@Override
+	public Response purchase(Tx tx, SecurityContext securityContext, HttpServletRequest httpServletRequest)
+			throws NotFoundException, AnnpurnaServiceException {
+		walletServiceImpl.transfer(tx.getSenderSecret() , props.getProperty("org.msp.id"), tx.getAmount().longValue());
+		return  ResponseUtil.getSuccessResponse("Purchase successfull", null);
+	}
+
+	@Override
+	public Response walletHistory(String xUserSecret, SecurityContext securityContext,
+			HttpServletRequest httpServletRequest) throws NotFoundException, AnnpurnaServiceException {
+		return  ResponseUtil.getSuccessResponse("History Fetched Successfully",walletServiceImpl.getWalletHistory(xUserSecret)) ;
+		
+	}
 }

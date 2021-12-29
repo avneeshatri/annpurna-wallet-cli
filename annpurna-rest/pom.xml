@@ -119,6 +119,18 @@
 		<finalName>annpurna-web</finalName>
 		<pluginManagement>
 			<plugins>
+			   <plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>3.2.3</version>
+					<configuration>
+						<webResources>
+							<resource>
+								<directory>${project.basedir}/../annpurna-ui/build</directory>
+							</resource>
+						</webResources>
+					</configuration>
+				</plugin>
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
