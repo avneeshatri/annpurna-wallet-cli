@@ -6,7 +6,9 @@ import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 import org.annpurna.cli.common.utils.CommonUtils;
@@ -63,6 +65,7 @@ public class ZudexoWalletContractService {
 			
 				System.out.println(getBalance(contract, wallet.getId(), wallet.getSecret()));
 				
+				System.out.println(getWalletHistory(contract,wallet.getSecret()));
 				/*
 				
 				System.out.println(getBalance(contract, ZudexoMSP, ""));
@@ -125,7 +128,8 @@ public class ZudexoWalletContractService {
 		
 		String walletJson = JsonParser.serialize(wallet);
 		byte[] response = contract.submitTransaction("CreateWallet", walletJson, CryptoUtil.base64EndoedString(signature));
-		return JsonParser.deserialize(CommonUtils.deserialize(response),AnnpurnaWallet.class);
+		 JsonParser.deserialize(CommonUtils.deserialize(response),AnnpurnaWallet.class);
+		 return wallet;
 	}
 	
 	private static AnnpurnaWallet createPartnerWallet(Contract contract , String orgMspId) throws Exception {
@@ -138,8 +142,24 @@ public class ZudexoWalletContractService {
 	private static AnnpurnaWallet addFunds(Contract contract , long value) throws Exception {
 		System.out.println("Submit create partner wallet transaction.");
 		
-		byte[] response = contract.submitTransaction("addFunds", String.valueOf(value));
+		byte[] response = contract.submitTransaction("AddFunds", String.valueOf(value));
 		return JsonParser.deserialize(CommonUtils.deserialize(response),AnnpurnaWallet.class);
+	}
+	
+	
+	private static List<AnnpurnaWallet> getWalletHistory(Contract contract , String secret) throws Exception {
+		System.out.println("Submit get wallet history transaction.");
+		
+		String walletId = CryptoUtil.generateWalletId(secret) ;
+
+		byte[] signature = CryptoUtil.signWithPrivatekey(walletId.getBytes(), 
+				CryptoUtil.generatePKCS8EncodedPrivateKey(CryptoUtil.base64Decoded(secret)));
+		String userSign = CryptoUtil.base64EndoedString(signature) ;
+		byte[] response = contract.submitTransaction("GetWalletHistory", walletId, userSign);
+		String responseStr = CommonUtils.deserialize(response);
+		System.out.println("Wallet:"+responseStr);
+		List<AnnpurnaWallet> list = Arrays.asList(JsonParser.deserialize(responseStr,AnnpurnaWallet[].class));
+        return list;
 	}
 	
 	private static void setUpZudexo(Contract contract,long value) throws Exception {
@@ -173,7 +193,7 @@ public class ZudexoWalletContractService {
 					CryptoUtil.generatePKCS8EncodedPrivateKey(CryptoUtil.base64Decoded(secret)));
 			userSign = CryptoUtil.base64EndoedString(signature) ;
 		}
-		byte[] response = contract.submitTransaction("balanceOf", walletId , userSign );
+		byte[] response = contract.submitTransaction("BalanceOf", walletId , userSign );
 		String responseStr = CommonUtils.deserialize(response);
 		System.out.println("Balance:"+responseStr);
 		return responseStr ;
@@ -182,7 +202,7 @@ public class ZudexoWalletContractService {
 	private static void approve(Contract contract ,String ownerWalletId,String ownerSecret, String spenderWallet,String ammount) throws Exception {
 		byte[] signature = CryptoUtil.signWithPrivatekey(ownerWalletId.getBytes(), 
 				CryptoUtil.generatePKCS8EncodedPrivateKey(CryptoUtil.base64Decoded(ownerSecret)));
-		byte[] response = contract.submitTransaction("approve", CryptoUtil.base64EndoedString(signature),ownerWalletId,spenderWallet,ammount);
+		byte[] response = contract.submitTransaction("Approve", CryptoUtil.base64EndoedString(signature),ownerWalletId,spenderWallet,ammount);
 		String responseStr = CommonUtils.deserialize(response);
 		System.out.println("IsApproved:"+responseStr);
 	}
@@ -190,14 +210,14 @@ public class ZudexoWalletContractService {
 	private static void allowance(Contract contract ,String ownerWalletId, String ownerSecret, String spenderWallet) throws Exception {
 		byte[] signature = CryptoUtil.signWithPrivatekey(ownerWalletId.getBytes(),
 				CryptoUtil.generatePKCS8EncodedPrivateKey(CryptoUtil.base64Decoded(ownerSecret)));
-		byte[] response = contract.submitTransaction("allowance", CryptoUtil.base64EndoedString(signature),ownerWalletId,spenderWallet);
+		byte[] response = contract.submitTransaction("Allowance", CryptoUtil.base64EndoedString(signature),ownerWalletId,spenderWallet);
 		String responseStr = CommonUtils.deserialize(response);
 		System.out.println("Approved ammount:"+responseStr);
 	}
 	
 	public static String transferTo(Contract contract , String recipeient , Long ammount) throws Exception  {
 		System.out.println("Transfer to "+recipeient+" partner wallet transaction.");
-		byte[] response = contract.submitTransaction("transferTo", recipeient, String.valueOf(ammount));
+		byte[] response = contract.submitTransaction("TransferTo", recipeient, String.valueOf(ammount));
 		return JsonParser.deserialize(CommonUtils.deserialize(response),String.class);
 	}
 	

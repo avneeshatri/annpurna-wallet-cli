@@ -6,6 +6,8 @@ import java.nio.file.Paths;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Arrays;
+import java.util.List;
 
 import org.annpurna.cli.common.utils.CommonUtils;
 import org.annpurna.cli.common.utils.ResourceAdapter;
@@ -83,7 +85,7 @@ public class AnnpurnaWalletOperations {
 	
 	public String transferTo(String recipeient , Long ammount) throws Exception  {
 		System.out.println("Transfer to "+recipeient+" partner wallet transaction.");
-		byte[] response = getContract().submitTransaction("transferTo", recipeient, String.valueOf(ammount));
+		byte[] response = getContract().submitTransaction("TransferTo", recipeient, String.valueOf(ammount));
 		return JsonParser.deserialize(CommonUtils.deserialize(response),String.class);
 	}
 	
@@ -113,7 +115,7 @@ public class AnnpurnaWalletOperations {
 					CryptoUtil.generatePKCS8EncodedPrivateKey(CryptoUtil.base64Decoded(secret)));
 			userSign = CryptoUtil.base64EndoedString(signature) ;
 		}
-		byte[] response = getContract().submitTransaction("balanceOf", walletId , userSign );
+		byte[] response = getContract().submitTransaction("BalanceOf", walletId , userSign );
 		String responseStr = CommonUtils.deserialize(response);
 		System.out.println("Balance:"+responseStr);
 		return Long.valueOf(responseStr) ;
@@ -127,7 +129,7 @@ public class AnnpurnaWalletOperations {
 
 	public AnnpurnaWallet addFunds(long value) throws Exception {
 		System.out.println("Submit create partner wallet transaction.");
-		byte[] response = getContract().submitTransaction("addFunds", String.valueOf(value));
+		byte[] response = getContract().submitTransaction("AddFunds", String.valueOf(value));
 		return JsonParser.deserialize(CommonUtils.deserialize(response),AnnpurnaWallet.class);
 	}
 	
@@ -154,7 +156,8 @@ public class AnnpurnaWalletOperations {
 		
 		String walletJson = JsonParser.serialize(wallet);
 		byte[] response = getContract().submitTransaction("CreateWallet", walletJson, CryptoUtil.base64EndoedString(signature));
-		return JsonParser.deserialize(CommonUtils.deserialize(response),AnnpurnaWallet.class);
+		JsonParser.deserialize(CommonUtils.deserialize(response),AnnpurnaWallet.class);
+		return wallet ;
 	}
 	
 	public void transfer(String secret , String recipentWalletId, long amount ) throws Exception {
@@ -163,7 +166,21 @@ public class AnnpurnaWalletOperations {
 			byte[] signature = CryptoUtil.signWithPrivatekey(senderWalletId.getBytes(), 
 					CryptoUtil.generatePKCS8EncodedPrivateKey(CryptoUtil.base64Decoded(secret)));
 			String userSign = CryptoUtil.base64EndoedString(signature) ;
-			byte[] response = getContract().submitTransaction("transfer", userSign, senderWalletId, recipentWalletId ,String.valueOf(amount));
+			byte[] response = getContract().submitTransaction("Transfer", userSign, senderWalletId, recipentWalletId ,String.valueOf(amount));
 		}
+	}
+	
+	public List<AnnpurnaWallet> getWalletHistory(String secret) throws Exception {
+		System.out.println("Submit get wallet history transaction.");
+		String walletId = CryptoUtil.generateWalletId(secret) ;
+
+		byte[] signature = CryptoUtil.signWithPrivatekey(walletId.getBytes(), 
+				CryptoUtil.generatePKCS8EncodedPrivateKey(CryptoUtil.base64Decoded(secret)));
+		String userSign = CryptoUtil.base64EndoedString(signature) ;
+		
+		byte[] response = getContract().submitTransaction("GetWalletHistory", walletId, userSign);
+		String responseStr = CommonUtils.deserialize(response);
+		List<AnnpurnaWallet> list = Arrays.asList(JsonParser.deserialize(responseStr,AnnpurnaWallet[].class));
+        return list;
 	}
 }
