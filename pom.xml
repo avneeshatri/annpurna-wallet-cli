@@ -9,7 +9,43 @@
   	<module>annpurna-zudexo-cli</module>
   	<module>annpurna-cli-common</module>
   	<module>annpurna-ziggy-cli</module>
-  	<module>annpurna-rest</module>
   	<module>annpurna-ui</module>
+  	<module>annpurna-rest</module>
   </modules>
+  
+  	<profiles>
+		<!-- PROFILE TO BUILD ENVIRONMENT SPECIFIC ARTIFACTS -->
+		<profile>
+			<id>zudexo</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+                <name>zudexo</name>
+            </properties>
+		</profile>
+		<profile>
+			<id>ziggy</id>
+			<properties>
+                <name>ziggy</name>
+            </properties>
+		</profile>
+	</profiles>
+
+
+	<build>
+		<filters>
+			<filter>${project.basedir}/../env-profiles/config-${name}.properties</filter>
+		</filters>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>**/*.*</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+	
 </project>

@@ -91,7 +91,7 @@ public class AnnpurnaWallet {
 	@Override
 	public String toString() {
 		return "Wallet [id=" + id + ", createdOn=" + createdOn + ", createdBy=" + createdBy + ","
-				+ ", status=" + status + ", properties=" + properties + "]";
+				+ ", status=" + status + ", properties=" + properties + ",secret="+secret+",owner="+owner+"]";
 	}
 	
 }
