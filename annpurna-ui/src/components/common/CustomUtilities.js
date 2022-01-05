@@ -1,7 +1,7 @@
 import Alert from 'react-s-alert';
 
-var baseUrl = "http://localhost:8080/annpurna-web/api" ;
-//var baseUrl = "api"
+//var baseUrl = "http://localhost:8080/annpurna-web/api" ;
+var baseUrl = "api"
 var x_access_token_cookie = "x-access-token";
 var x_user_id_cookie = "x-user-id";
 
